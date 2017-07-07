@@ -1,0 +1,22 @@
+{
+  "name": "oc-organisation-picker",
+  "description": "Provides a drop-down list of organisations visible to the user",
+  "main": "oc-organisation-picker.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0",
+    "paper-dropdown-menu": "PolymerElements/paper-dropdown-menu#^1.2.1",
+    "paper-listbox": "polymerelements/paper-listbox#^1.1.2",
+    "paper-item": "PolymerElements/paper-item#^1.2.1",
+    "iron-ajax": "PolymerElements/iron-ajax#^1.2.0",
+    "iron-localstorage": "PolymerElements/iron-localstorage#^1.0.5",
+    "oc-core-utils": "git://github.com/oc-elements/oc-core-utils#1.x",
+    "oc-authorization-api": "git://github.com/oc-elements/oc-authorization-api#1.x",
+    "oc-organisation-api": "git://github.com/oc-elements/oc-organisation-api#1.x"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  }
+}

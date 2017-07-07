@@ -1,0 +1,154 @@
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/iron-localstorage/iron-localstorage.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="oc-core.html">
+<link rel="import" href="../bower_components/oc-user-api/oc-user-api.html">
+
+
+<dom-module id="sign-in">
+
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+            paper-button > iron-icon {
+                margin-right: 0.4em;
+            }
+        </style>
+
+      <template is="dom-if" if="{{ signedIn }}">
+            <paper-button on-tap="signOut">Logout</paper-button>
+        </template>
+
+        <template is="dom-if" if="{{ !signedIn }}">
+            <paper-button on-tap="signIn">Sign In</paper-button>
+        </template>
+		
+        <app-location route="{{ route }}"></app-location>
+        <app-route route="[[ route ]]" pattern="/oauth" tail="{{ routeData }}"></app-route>
+
+        <iron-localstorage
+                id="storage"
+                name="oc-auth"
+                use-raw
+                auto-save-disabled
+                on-iron-localstorage-load="_localstorageLoaded"
+                on-iron-localstorage-load-empty="_localstorageLoaded"
+        ></iron-localstorage>
+
+        <oc-user-api id="usersAPI"></oc-user-api>
+
+    </template>
+
+    <script>
+
+        Polymer({
+
+            is: 'sign-in',
+
+            properties: {
+                signedIn: {
+                    type: Boolean,
+                    computed: '_computeSignedIn(user)',
+                    notify: true
+                },
+                /**
+                 * The signed in user
+                 */
+                user: {
+                    type: Object,
+                    notify: true
+                },
+            },
+
+            observers: [
+                '_routeChanged(routeData)',
+                '_authenticateUser(token)',
+                '_signInRedirect(signedIn)'
+
+            ],
+
+            _signInRedirect : function(signedIn){
+
+                if(!signedIn){
+                    this._setToken(null);
+                }
+            },
+
+            _computeSignedIn: function(user) {
+			return user !== null;
+            },
+
+            signOut: function() {
+                this._setToken(null);
+                this.fire('oc-sign-out');
+            },
+
+            signIn: function() {
+                // TODO implement "state"
+
+                window.location = [
+                    OC.authHost, 'oauth/implicit?response_type=token&client_id=', OC.authClientId,
+                    '&redirect_uri=', encodeURIComponent(OC.redirectUrl)
+                ].join('');
+            },
+
+            _routeChanged: function(routeData) {
+                if (routeData.prefix !== '/oauth') {
+                    return;
+                }
+
+                if (routeData.__queryParams.access_token) {
+                    this._setToken(routeData.__queryParams.access_token);
+                }
+
+                // TODO handle errors
+                window.history.pushState(null,'','/');
+                location.reload();
+
+            },
+
+            _authenticateUser: function(token) {
+                if (!token) {
+                    this.user = null;
+                    return;
+                }
+
+                this.$.usersAPI.getLoggedInUser()
+                        .then(function(request) {
+                            this.user = request.response;
+                            OC.userId = this.user.id;
+                            this.fire('oc-sign-in', request.response);
+                        }.bind(this))
+                        .catch(ExpiredTokenError, function() {
+                            this._setToken(null);
+                            this.signIn();
+                        }.bind(this))
+                        .catch(function(error) {
+                            this.fire('oc-sign-in-error', error);
+                        }.bind(this));
+            },
+
+            _setToken: function (val) {
+                this.$.storage.value = this.token = OC.token = val;
+                if(val == null) {
+                    OC.token = OC.viewToken;
+                }
+                this.$.storage.save();
+            },
+
+            _localstorageLoaded: function() {
+                this._setToken(this.$.storage.value);
+            }
+
+        });
+
+
+    </script>
+
+</dom-module>

@@ -1,0 +1,221 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="shop-common-styles.html">
+<link rel="import" href="shop-form-styles.html">
+<link rel="import" href="oc-core.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/oc-register-staff/oc-register-staff.html">
+
+<dom-module id="shop-register">
+	
+  <template>
+	            <style>
+            :host {
+                display: block;
+            }
+
+            paper-button {
+                background-color: var(--primary-color);
+                color: #fff;
+                margin-top: 10px;
+                margin-bottom: 10px;
+            }
+
+            paper-radio-button,
+            iron-label,
+            paper-radio-group,
+            paper-checkbox {
+                display: block;
+            }
+
+            paper-checkbox {
+                margin-bottom: 5px;
+            }
+
+            paper-radio-button + paper-radio-button {
+                padding-top: 0 !important;
+            }
+
+            .error-input {
+                color: #dd2c00;
+            }
+
+    
+    </style>
+	<!--
+	<paper-input label="username" value="{{username}}">
+	  <iron-icon icon="mail" slot="prefix"></iron-icon>
+	  <div slot="suffix"></div>
+	</paper-input>
+
+	<paper-input label="mobileNumberCountry" value="{{mobileNumberCountry}}">
+	  <iron-icon icon="mail" slot="prefix"></iron-icon>
+	  <div slot="suffix"></div>
+	</paper-input>
+	
+	<paper-input label="password" value="{{password}}">
+	  <iron-icon icon="mail" slot="prefix"></iron-icon>
+	  <div slot="suffix"></div>
+	</paper-input>
+	
+	<paper-input label="firstName" value="{{firstName}}">
+	  <iron-icon icon="mail" slot="prefix"></iron-icon>
+	  <div slot="suffix"></div>
+	</paper-input>
+	
+	<paper-input label="surname" value="{{surname}}">
+	  <iron-icon icon="mail" slot="prefix"></iron-icon>
+	  <div slot="suffix"></div>
+	</paper-input>
+	
+	<paper-input label="email" value="{{email}}">
+	  <iron-icon icon="mail" slot="prefix"></iron-icon>
+	  <div slot="suffix"></div>
+	</paper-input>
+	
+	<paper-input label="nickName" value="{{nickName}}">
+	  <iron-icon icon="mail" slot="prefix"></iron-icon>
+	  <div slot="suffix"></div>
+	</paper-input>
+	
+	<paper-input label="cellphoneNumber" value="{{cellphoneNumber}}">
+	  <iron-icon icon="mail" slot="prefix"></iron-icon>
+	  <div slot="suffix"></div>
+	</paper-input>
+	
+	<paper-input label="sex" value="{{sex}}">
+	  <iron-icon icon="mail" slot="prefix"></iron-icon>
+	  <div slot="suffix"></div>
+	</paper-input>
+
+	 <paper-button raised on-tap="registerUser" class="primary">Submit</paper-button>
+	 
+	 
+	 <iron-ajax
+    id="registerUser"
+	method="POST"
+    url="{{url}}"
+	body="{{ajaxBody}}"
+    headers='{{ajaxParams}}'
+	on-response="handleResponse"
+     handle-as="json"
+    loading="{{loading}}"
+    on-response="handleResponse"
+    on-error="handleErrorResponse"
+    debounce-duration="300"></iron-ajax>
+	-->
+	
+	<oc-register-staff></oc-register-staff>
+	
+  </template>
+
+  <script>
+
+    Polymer({
+
+      is: 'shop-register',
+	
+      properties: {
+	  
+	loading: {
+		type: Boolean,
+		notify: true
+	},
+
+	token: {
+		type: String,
+		value: '1eec942aa78f0d610f586ac0daf77ec2'
+		//value: OC.clientId
+	},	
+	
+	ajaxParams: {
+		type: String,
+		computed: '_processHeader(token)'
+	},
+
+	ajaxBody: {
+		type: String,
+		computed: '_body(username, mobileNumberCountry, password, firstName, surname, email, nickName, cellphoneNumber, sex)'
+	},
+	
+	url: { type: String, value: 'https://staging-api.ordercloud.com/resource/users' },
+	username: { type: String, value: 'jamie' },
+	mobileNumberCountry: { type: String, value: '+27' },
+	password: { type: String, value: 'test' },
+	firstName: { type: String, value: 'jamie' },
+	surname: { type: String, value: 'page' },
+	email: { type: String, value: 'jamie@jnz.co.za' },
+	nickName: { type: String, value: 'jamie' },
+	cellphoneNumber: { type: String, value: '0829273058' },
+	sex: { type: String, value: 'Male' },
+      },
+
+	registerUser: function() {
+		this.$.registerUser.generateRequest();
+	},
+	
+	_processHeader: function(token) {
+		var cuname = btoa('jamie@jnz.co.za:18421@ordercloud');
+		var obj = {
+			'X-Ordercloud-organisation': token,
+			'Authorization': 'Basic ' + cuname,
+			'Content-Type': 'application/json',
+			'Accept': 'text/plain',
+			//'Authorization': 'Basic ' + computedUsername
+		};
+		console.log(token);
+		return obj;
+	},
+	
+	handleResponse(data) {
+		console.log(data.detail.response);
+		return;
+		var data = data.detail.response;
+		
+		if (data === Object(data)) {
+			this.isLoggedIn = true;
+			return;
+		}
+		this.isLoggedIn = false;
+		return;
+	},
+	
+	handleErrorResponse(event) {
+		this.loading = false;
+		this.responseError = event.detail.request.xhr.response;
+		console.log(this.responseError);
+	},
+	
+	_body: function(username, mobileNumberCountry, password, firstName, surname, email, nickName, cellphoneNumber, sex){
+		var obj = {
+			username: this.username,
+			mobileNumberCountry: this.mobileNumberCountry,
+			password: this.password,
+			firstName: this.firstName,
+			surname: this.surname,
+			email: this.email,
+			nickName: this.nickName,
+			cellphoneNumber: this.cellphoneNumber,
+			sex: this.sex,
+			groupIds: [],
+			sendWelcomeMessage: false
+		};
+		
+		console.log(obj);
+		return obj;
+	}
+	
+    });
+
+  </script>
+
+</dom-module>

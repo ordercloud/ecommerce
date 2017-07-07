@@ -1,0 +1,321 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="shop-icons.html">
+<link rel="import" href="shop-image.html">
+<link rel="import" href="shop-select.html">
+
+<dom-module id="shop-cart-item">
+
+    <template strip-whitespace>
+
+    <style include="shop-select">
+
+    :host {
+        @apply(--layout-horizontal);
+        position: relative;
+        margin-bottom: 24px;
+    }
+
+    shop-image {
+        width: 72px;
+        height: 72px;
+    }
+
+    shop-select > select {
+        font-size: 16px;
+        padding-left: 40px;
+    }
+
+    shop-select > shop-md-decorator {
+        font-size: 12px;
+        border: none;
+    }
+
+    .name {
+        @apply(--layout-flex-auto);
+        line-height: 20px;
+        font-weight: 500;
+        float: left;
+        width: calc(100% - 438px);
+        margin-top: 26px;
+        margin-right: 30px;
+    }
+
+    .name a {
+        display: inline-block;
+        max-width: 100%;
+        text-decoration: none;
+        color: var(--app-primary-color);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .price, .size {
+        display: inline-block;
+        white-space: nowrap;
+        color: var(--app-secondary-color);
+
+    }
+
+    paper-icon-button{
+
+    }
+
+    .size {
+        min-width: 70px;
+        width: 144px;
+    }
+
+    .size > span {
+        margin-left: 10px;
+    }
+
+    .price {
+        min-width: 70px;
+        width: 100px;
+        padding: 3px 3px;
+    }
+
+    .quantity {
+        min-width: 80px;
+        width: 100px;
+    }
+
+    .delete-button {
+        width: 30px;
+        height: 30px;
+        color: var(--app-secondary-color);
+        position: absolute;
+        right: 20px;
+        border: 2px solid #222;
+    border-radius: 50%;
+    color: #060606;
+    background: #c43a3a;
+    padding: 0px;
+    }
+
+    .flex {
+        @apply(--layout-horizontal);
+        @apply(--layout-flex-auto);
+        margin-left: 24px;
+    }
+
+    .detail {
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        /*margin-top: 26px;*/
+        margin-right: 30px;
+        /*height: 20px;*/
+    }
+
+    .extras, .options{
+        width: 240px;
+    }
+
+    .size span.option-name{
+        width: 180px;
+    }
+
+    .size span.option-price{
+        width: 60px;
+        text-align: right;
+        /*float: right;*/
+    }
+
+    @media (max-width: 767px) {
+        .flex {
+            @apply(--layout-vertical);
+            margin-left: 10px;
+        }
+
+        .name {
+            margin-top: 16px;
+            margin-right: 0;
+            width: calc(100% - 40px);
+        }
+
+        .detail {
+            @apply(--layout-self-end);
+            margin: 10px 10px 0 0;
+        }
+
+        .quantity, .size, .price {
+            text-align: right;
+            width: auto;
+        }
+
+        .delete-button {
+            top: 8px;
+        }
+    }
+
+    @media (max-width: 360px) {
+        .name {
+            margin-top: 0;
+        }
+
+        .detail {
+            @apply(--layout-vertical);
+            @apply(--layout-start);
+            @apply(--layout-self-start);
+            height: auto;
+            margin-top: 0;
+        }
+
+        .delete-button {
+            top: -6px;
+        }
+
+        shop-select > select {
+            padding: 2px 24px 2px 40px;
+        }
+
+        .quantity, .size, .price {
+            text-align: left;
+            width: auto;
+        }
+    }
+
+    </style>
+
+
+    <!-- <div class="cart-item"> -->
+    <!-- no image sent through for this section -->
+
+
+    <!-- <template is="dom-if" if=""> -->
+    <!-- <a href$="/detail/[[entry.item.category]]/[[entry.item.name]]" title$="[[entry.item.title]]"> -->
+    <!-- <shop-image src="[[entry.item.featuredImage]]" alt="[[entry.item.title]]"></shop-image> -->
+    <!-- </a> -->
+    <!-- </template> -->
+
+    <!-- </div> -->
+    <div class="flex">
+        <img src="http://via.placeholder.com/200x200/222222/ffffff" alt="holder image" style="margin-right: 20px;">
+
+        <div class="name">
+            <a href$="/detail/[[entry.detail.category]]/[[entry.detail.name]]"><h3>[[entry.detail.name]]</h3></a>
+            <div class="description">
+                <p>[[entry.detail.description]]</p>
+            </div>
+        </div>
+
+        <div class="detail">
+        <div class="quantity">
+            <label prefix>Qty: </label>
+            <span> [[entry.quantity]]</span>
+        </div>
+        <div>
+            <div hidden$="[[!_hasItems(entry.options)]]" class="option" style="background-color:#eee; padding: 2px; 2px">
+                <label>Options: </label>
+                <template is="dom-repeat" items="{{entry.options}}" as="option">
+                    <template is="dom-if" if="{{_hasOption(entry.options)}}">
+                        <div class="size" style="display:block; padding: 1px 1px">
+                            <span class="option-name">[[option.name]]</span><span class="option-price">[[_formatPrice(option.price)]]</span>
+                        </div>
+                    </template>
+                </template>
+            </div>
+            <div hidden$="[[!_hasItems(entry.extras)]]" class="extras" style="background-color:#ddd; padding: 2px 2px">
+                <label>Extras:</label>
+                <template is="dom-repeat" items="{{entry.extras}}" as="extras">
+                    <template is="dom-if" if="{{_hasOption(entry.extras)}}">
+                        <div class="size" style="display:block; padding: 1px 1px">
+                            <span class="option-name">[[extras.name]]</span><span class="option-price">[[_formatPrice(extras.price)]]</span>
+                        </div>
+                    </template>
+                </template>
+            </div>
+        </div>
+        <div class="detail" style="margin-left:10px;">
+
+            <div class="price">[[_formatPrice(totalPrice)]]</div>
+            <!--Use on-click instead of on-tap to prevent the next cart item to be focused        -->
+            <paper-icon-button class="delete-button" icon="close" aria-label$="Delete item [[entry.detail.name]]"
+            on-click="_removeItem"></paper-icon-button>
+        </div>
+        </div>
+
+    </div>
+</template>
+
+<script>
+
+Polymer({
+
+    is: 'shop-cart-item',
+
+    properties: {
+        entry: Object,
+        totalPrice: Number,
+    },
+
+    observers: [ '_getTotalItemPrice(entry)' ],
+
+    _quantityChange: function() {
+        this._setCartItem(parseInt(this.$.quantitySelect.value, 10));
+    },
+
+    _setCartItem: function(quantity) {
+        this.fire('set-cart-item', {
+            item: this.entry.item,
+            quantity: quantity,
+            size: this.entry.size
+        });
+    },
+
+    _formatPrice: function(price) {
+        return price ? 'R ' + price.toFixed(2) : '';
+    },
+
+    _removeItem: function() {
+        var itemHash = this.entry.itemHash;
+        this.fire('delete-from-cart', itemHash);
+    },
+    _getOption: function(entryId, optionId) {
+        return (entryId == optionId);
+    },
+
+    _hasOption: function(option) {
+        return option.length > 0;
+    },
+
+    _getTotalItemPrice: function(entry){
+        var price = entry.detail.price;
+        var optionPrice = 0;
+        var extraPrice = 0;
+
+        if(entry.options){
+            entry.options.forEach(function(entry){
+                optionPrice += entry.price;
+            });
+        }
+        if(entry.extras){
+            entry.extras.forEach(function(entry){
+                extraPrice += entry.price;
+            });
+        }
+
+        this.totalPrice = price + optionPrice + extraPrice ;
+    },
+
+    _hasItems: function(items){
+        return (items && items.length);
+    }
+});
+
+</script>
+
+</dom-module>

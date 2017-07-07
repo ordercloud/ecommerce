@@ -1,0 +1,116 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../oc-core-utils/oc-api-provider-behaviour.html">
+
+<dom-module id="oc-user-api">
+
+  <template>
+    <iron-ajax id="getLoggedInUser"></iron-ajax>
+    <iron-ajax id="getGeoLocation"></iron-ajax>
+    <iron-ajax id="getProfile"></iron-ajax>
+    <iron-ajax id="createAccount"></iron-ajax>
+    <iron-ajax id="updateProfile"></iron-ajax>
+  </template>
+
+  <script>
+    (function () {
+      Polymer({
+        is: 'oc-user-api',
+        behaviors: [OC.Behaviours.ApiProvider],
+
+        /**
+         * Get the currently logged in user
+         *
+         * @returns {Promise}
+         */
+        getLoggedInUser: function() {
+          this.$.getLoggedInUser.url = this._url('users/logged_in');
+          return this._generateRequest(this.$.getLoggedInUser);
+        },
+
+        /**
+         * Get a user's profile
+         *
+         * @returns {Promise}
+         */
+        getProfile: function(userId) {
+          this.$.getProfile.url = this._url('users/'+userId+'/profile');
+          return this._generateRequest(this.$.getProfile);
+        },
+
+        /**
+         * Get the Lats/Longs for an address
+         *
+         * @param {{ String, name: String, streetNumber: String, streetName: String, complex: String, suburb: String, city: String, postalCode: String, province: String, country: String }} address
+         * @return {Promise}
+         */
+        getGeoLocation: function(address) {
+          this.$.getGeoLocation.url = this._url('users/geocode');
+          this.$.getGeoLocation.method = "PUT";
+          this.$.getGeoLocation.contentType = "application/json";
+          this.$.getGeoLocation.body =
+          {
+            latitude: null,
+            name: address.name,
+            streetNumber: address.streetNumber,
+            streetName: address.streetName,
+            complex: address.complex,
+            suburb: address.suburb,
+            city: address.city,
+            postalCode: address.postalCode,
+            note: null,
+            favourite: false,
+            id: 0,
+            enabled: false,
+            longitude: null
+          };
+          return this._generateRequest(this.$.getGeoLocation);
+        },
+
+        /**
+         * Create User account
+         *
+         * @param {{ String, userId : string }} userId
+         * @param {{ Object, cellphoneNumber: String, email: String, firstName: String, nickName: String, sex: String, surname: String }} userProfileData
+         * @return {Promise}
+         */
+        createAccount: function(params) {
+          this.$.createAccount.url = this._url('users/');
+          this.$.createAccount.method = "POST";
+          this.$.createAccount.contentType = "application/json";
+          this.$.createAccount.body = params;
+
+          return this._generateRequest(this.$.createAccount);
+        },
+
+
+        /**
+         * Update user's profile information
+         *
+         * @param {{ String, userId : string }} userId
+         * @param {{ Object, cellphoneNumber: String, email: String, firstName: String, nickName: String, sex: String, surname: String }} userProfileData
+         * @return {Promise}
+         */
+        updateProfile: function(userId, userProfileData) {
+          var _data = userProfileData;
+          this.$.updateProfile.url = this._url('users/'+userId+'/profile');
+          this.$.updateProfile.method = "PUT";
+          this.$.updateProfile.contentType = "application/json";
+          this.$.updateProfile.body =
+          {
+            cellphoneNumber: _data.cellphoneNumber,
+            email:_data.email,
+            firstName: _data.firstName,
+            nickName: _data.nickName,
+            sex: _data.sex,
+            surname:_data.surname
+          };
+
+          return this._generateRequest(this.$.updateProfile);
+        }
+
+      });
+    })();
+  </script>
+
+</dom-module>

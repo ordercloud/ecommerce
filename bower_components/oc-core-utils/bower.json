@@ -1,0 +1,22 @@
+{
+  "name": "oc-core-utils",
+  "description": "A set of elements to aid oc element construction",
+  "main": [
+    "oc-core.html",
+    "oc-api-consumer-behaviour.html",
+    "oc-api-provider-behaviour.html",
+    "formatter-behaviour.html"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0",
+    "bluebird": "^3.4.0",
+    "moment": "moment/moment#^2.13.0",
+    "bignumber.js": "MikeMcl/bignumber.js#^2.3.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  }
+}

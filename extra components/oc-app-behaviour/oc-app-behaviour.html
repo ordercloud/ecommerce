@@ -1,0 +1,159 @@
+<script>
+  window.OC = window.OC || {};
+  window.OC.Behaviours = window.OC.Behaviours || {};
+
+  OC.Behaviours.App = {
+
+    properties: {
+      page: {
+        type: String,
+        reflectToAttribute: true,
+        observer: '_pageChanged'
+      }
+    },
+
+    listeners: {
+      'toast': '_toast',
+      'oc-page-to': '_pageTo'
+    },
+
+    observers: [
+      '_routePageChanged(routeData.page, signedIn)',
+      '_toggleRefreshBtn(page, signedIn)',
+      '_setClientId(clientId)',
+      '_refresh(clientId)'
+    ],
+
+    _routePageChanged: function(page, signedIn) {
+      if (!signedIn) {
+        return this.page = 'signin';
+      }
+      if (!page && this.defaultPage.menuItem) {
+        window.history.pushState(null, '', this.defaultPage.menuItem.href);
+      }
+      this.page = page || this.defaultPage.name;
+    },
+
+    _pageChanged: function(page) {
+      if (!page) {
+        return;
+      }
+
+      // load page import on demand.
+      this.importHref(this.resolveUrl('views/' + this.appHandle + '-' + page + '.html'), null, null, true);
+    },
+
+    attached: function() {
+      this.initialClientId = OC.clientId;
+    },
+
+    _closeDrawer: function() {
+      if (this.$.drawer.persistent) {
+        return;
+      }
+      this.$.drawer.close();
+    },
+
+    _computeMenuItems: function(signedIn) {
+      return !signedIn ? [] : this.pages.filter(function (page) {
+        return page.menuItem;
+      });
+    },
+
+    _getPageTitle: function(page) {
+      return this.pages.reduce(function(prev, curr) {
+        if (!prev && curr.name === page) {
+          return curr.title;
+        }
+        return prev;
+      }, null);
+    },
+
+    _navigateBack: function() {
+      window.history.back();
+    },
+
+    _toggleRefreshBtn: function(page, signedIn) {
+      this.$.refreshBtn.hidden = !signedIn || this.refreshablePages.indexOf(page) === -1;
+    },
+
+    _refresh: function() {
+      if (this.activeView.refresh) {
+        this.activeView.refresh();
+      }
+    },
+
+    _computeRefreshBtnClass: function(refreshing) {
+      return refreshing ? 'rotating' : '';
+    },
+
+    _toast: function(event, message) {
+      this.$.toast.show(message);
+    },
+
+    _computePermission: function(signedIn) {
+      return signedIn ? 'bWFuYWdlbWVudF9jb25zb2xlOnZpZXc6b3JnYW5pc2F0aW9u' : null;
+    },
+
+    _setClientId: function(clientId) {
+      OC.clientId = clientId || this.initialClientId;
+    },
+
+    _pageTo: function(event, detail) {
+      window.history.pushState(null,'',detail);
+      this.fire('location-changed');
+    },
+
+    /**
+     * App pages.
+     * @returns {Page[]}
+     */
+    get pages() {
+      console.warn('No app pages registered');
+      return [];
+    },
+
+    /**
+     * The app handle. Used to determine view prefixes.
+     * @returns {String}
+     */
+    get appHandle() {
+      console.warn('App handle not defined');
+    },
+
+    /**
+     * The default app page.
+     * @returns {Page}
+     */
+    get defaultPage() {
+      console.warn('Default page not defined');
+      return OC.Page();
+    },
+
+    /**
+     * The app pages that can be refreshed.
+     * @returns {String[]}
+     */
+    get refreshablePages() {
+      return [];
+    }
+
+  };
+
+  OC.Page = function(name, title, menuItem) {
+    return {
+      name: name,
+      title: title,
+      menuItem: menuItem
+    };
+  };
+
+  OC.PageMenuItem = function(name, href, icon) {
+    return {
+      name: name,
+      href: href,
+      icon: icon
+    };
+  };
+
+</script>

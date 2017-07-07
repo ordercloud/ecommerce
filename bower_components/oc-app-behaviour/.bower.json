@@ -1,0 +1,24 @@
+{
+  "name": "oc-app-behaviour",
+  "description": "Common oc-app features",
+  "main": "oc-app-behaviour.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  },
+  "homepage": "https://github.com/oc-elements/oc-app-behaviour",
+  "_release": "3088d8907b",
+  "_resolution": {
+    "type": "branch",
+    "branch": "1.x",
+    "commit": "3088d8907b4389a80aa98ce82c847c7b885beb83"
+  },
+  "_source": "git://github.com/oc-elements/oc-app-behaviour.git",
+  "_target": "1.x",
+  "_originalSource": "git://github.com/oc-elements/oc-app-behaviour"
+}

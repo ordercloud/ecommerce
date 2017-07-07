@@ -1,0 +1,304 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="shop-button.html">
+<link rel="import" href="to-shop-button.html">
+<link rel="import" href="shop-common-styles.html">
+<link rel="import" href="shop-form-styles.html">
+<link rel="import" href="../bower_components/oc-cart-api/oc-cart-api.html">
+
+<dom-module id="shop-cart">
+
+  <template>
+
+    <style include="shop-common-styles shop-button shop-form-styles">
+
+      .list {
+        margin: 40px 0;
+      }
+
+      .checkout-box {
+        font-weight: bold;
+        text-align: right;
+        margin-right: 10px;
+      }
+
+      .subtotal {
+        margin: 0 64px 0 24px;
+      }
+
+     shop-cart-item:nth-child(2n -1){
+         background-color: #c0c2ce ;
+         padding: 20px 0;
+     }
+     shop-cart-item:nth-child(2n){
+         background-color: #afafaf ;
+         padding: 20px 0;
+     }
+      @media (max-width: 767px) {
+
+        .subtotal {
+          margin: 0 0 0 24px;
+        }
+
+      }
+
+    </style>
+
+<!--
+	<iron-ajax
+    auto
+	method="GET"
+	url="{{ _getUrl	}}"
+	headers='{{ajaxParams}}'
+    handle-as="json"
+    loading="{{loading}}"
+    on-response="handleGetResponse"
+    on-error="handleGetErrorResponse"
+    debounce-duration="300"></iron-ajax>
+-->
+
+
+    <div class="main-frame">
+      <div class="subsection" visible$="[[!_hasItems]]">
+        <p class="empty-cart">Your <iron-icon icon="shopping-cart"></iron-icon> is empty.</p>
+      </div>
+      <div class="subsection" visible$="[[_hasItems]]">
+        <header>
+          <h1>Your Cart</h1>
+          <span>([[_getPluralizedQuantity(cart.items.length)]])</span>
+        </header>
+        <div class="list">
+          <template is="dom-repeat" items="[[cart.items]]" as="entry">
+            <shop-cart-item id="cartItems" entry="[[entry]]"></shop-cart-item>
+          </template>
+        </div>
+        <div class="checkout-box">
+          Total: <span class="subtotal">[[total]]</span>
+          <shop-button responsive>
+            <a on-tap="checkout">Checkout</a>
+            <a on-tap="clearCart">Clear</a>
+          </shop-button>
+        </div>
+      </div>
+    </div>
+
+<!--
+	<iron-ajax
+    id="postCart"
+	method="POST"
+    url="{{_urlPost}}"
+	headers='{{ajaxParams}}'
+	body="{{_body}}"
+	on-response="handleResponse"
+    handle-as="json"
+    loading="{{loading}}"
+    on-response="handleResponse"
+    on-error="handleErrorResponse"
+    debounce-duration="300"></iron-ajax>
+	-->
+  </template>
+
+  <script>
+
+    Polymer({
+
+      is: 'shop-cart',
+       behaviors: [OC.Behaviours.ApiProvider],
+      properties: {
+
+		loading: {
+			type: Boolean,
+			notify: true
+		},
+
+		total: Number,
+
+		//cart: Array,
+		token: { type: String, value: OC.clientId },
+		visible: {
+			type: Boolean,
+			observer: '_visibleChanged'
+		},
+
+		_hasItems: {
+		  type: Boolean,
+		  computed: '_computeHasItem(cart.items.length)'
+		},
+
+		_urlPost: { type: String, computed: '_ajaxUrl(token)' },
+		_getUrl: { type: String, computed: '_ajaxGetUrl(token)' },
+		_body: { type: Object, computed: '_ajaxPutCartBody(token)' },
+
+		ajaxParams: {
+			type: String,
+			computed: '_processHeader(token)'
+		},
+      },
+
+	observers: [ '_formatTotal(total)' ],
+
+	  _formatTotal: function(total) {
+		return isNaN(total) ? '' : 'R' + total.toFixed(2);
+      },
+
+      _computeHasItem: function(cartLength) {
+		//console.log(cartLength);
+			return cartLength > 0;
+      },
+
+      _getPluralizedQuantity: function(quantity) {
+        return quantity + ' ' + (quantity === 1 ? 'item' : 'items');
+      },
+
+      _visibleChanged: function(visible) {
+        if (visible) {
+          // Notify the section's title
+          this.fire('change-section', { title: 'Your cart' });
+        }
+      },
+
+
+	  _ajaxUrl: function(token) {
+	  	var userId = JSON.parse(localStorage.getItem('oc-userId'));
+		return (userId) ? this._url('cart/user/'+userId+'/order') : '';
+	  },
+
+	  _ajaxOrderCartBody: function(toen) {
+		var userId = JSON.parse(localStorage.getItem('oc-userId'));
+		var cartdata = JSON.parse(localStorage.getItem('shop-cart-data'));
+		var body = {
+			  "amount": cartdata[0].item.price,
+			  "tip": 0,
+			  "deliveryCost": 0,
+			  "adminFee": 0,
+			  "deliveryType": "SELFPICKUP",
+			  "note": "string",
+			  "reference": "ref" + userdata.id
+			};
+		//console.log(this._body);
+		return body;
+	  },
+
+	  _ajaxPutCartBody: function(token) {
+		var userId = JSON.parse(localStorage.getItem('oc-userId'));
+		var cartdata = JSON.parse(localStorage.getItem('shop-cart-data'));
+		var body = {};
+		//console.log(this._body);
+		return body;
+	  },
+
+	_processHeader: function(token) {
+		var cuname = btoa('jamie@jnz.co.za:18421@ordercloud');
+		var obj = {
+			'X-Ordercloud-organisation': token,
+			'Authorization': 'Bearer ' + OC.token,
+			//'Authorization': 'Basic ' + cuname,
+			'Content-Type': 'application/json',
+			//'Authorization': 'Basic ' + computedUsername
+		};
+		//console.log(token);
+		return obj;
+	},
+
+	 clearCart: function(){
+		//this.$.cartApi.clearCart(this._userId);
+		this.fire('clear-cart');
+	 },
+
+	 checkout: function() {
+		var userId = localStorage.getItem('oc-userId');
+		var body = {
+		  "amount": this.total,
+		  "tip": 0,
+		  "deliveryCost": 0,
+		  "adminFee": 0,
+		  "deliveryType": "SELFPICKUP",
+		  "note": "string",
+		  "reference": "ref" + userId
+		};
+
+		this.fire('create-cart-order', { body });
+		//var userdata = JSON.parse(localStorage.getItem('shop-login'));
+		//var cartdata = JSON.parse(localStorage.getItem('shop-cart-data'));
+		//	console.log(userdata);
+		//console.log(cartdata);
+		/*
+		var obj = {};
+
+		for (var i = 0; i < cartdata.length; i++){
+			//console.log(cartdata[i]);
+			obj = {
+				productId: cartdata[i].item.id,
+				optionIds: [0],
+				extraIds: [0],
+				quantity:  cartdata[i].quantity
+			};
+		//	this.$.postCart.generateRequest();
+			//console.log(obj);
+		};
+		*/
+		/*
+		var obj = {
+		  "productId": 0,
+		  "optionIds": [
+			0
+		  ],
+		  "extraIds": [
+			0
+		  ],
+		  "quantity": 0
+		};
+		*/
+		//this.$.postCart.generateRequest();
+		//console.log(obj);
+	},
+
+	handleResponse(data) {
+		console.log(data.detail.response);
+		return;
+	},
+
+	handleErrorResponse(event) {
+		this.loading = false;
+		this.responseError = event.detail.request.xhr.response;
+		//console.log(this.responseError);
+	},
+
+	    _ajaxGetUrl: function(token) {
+	  	var userId = JSON.parse(localStorage.getItem('oc-userId'));
+		return (userId)? this._url('cart/user/'+userId): '';
+	  },
+
+	handleGetResponse(data) {
+	//	cartItems = data.detail.response;
+	//	var items = cartItems.items;
+
+		//	console.log('cart fetched');
+		// console.log(cartItems);
+	//	this.total = cartItems.cartTotal;
+	//	this.cart = { items };
+		//console.log('total');
+		//console.log(cartItems.cartTotal);
+	},
+
+	handleGetErrorResponse(event) {
+		  this.loading = false;
+			this.responseError = event.detail.request.xhr.response;
+			console.log(this.responseError);
+	},
+
+
+    });
+
+  </script>
+
+</dom-module>
