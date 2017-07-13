@@ -14,7 +14,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="oc-core.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/oc-register-staff/oc-register-staff.html">
-
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../iron-label/iron-label.html">
 <dom-module id="shop-register">
 	
   <template>
@@ -51,7 +52,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     
     </style>
-	<!--
+	
+	
+	<oc-register-staff id="register"></oc-register-staff>
+		
+		
+<!--
 	<paper-input label="username" value="{{username}}">
 	  <iron-icon icon="mail" slot="prefix"></iron-icon>
 	  <div slot="suffix"></div>
@@ -62,7 +68,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	  <div slot="suffix"></div>
 	</paper-input>
 	
-	<paper-input label="password" value="{{password}}">
+	<paper-input label="password" value="{{password}}" type="password">
 	  <iron-icon icon="mail" slot="prefix"></iron-icon>
 	  <div slot="suffix"></div>
 	</paper-input>
@@ -92,15 +98,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	  <div slot="suffix"></div>
 	</paper-input>
 	
-	<paper-input label="sex" value="{{sex}}">
-	  <iron-icon icon="mail" slot="prefix"></iron-icon>
-	  <div slot="suffix"></div>
-	</paper-input>
+	 <iron-label>
+            <span>Gender</span>
+            <paper-radio-group id="gender" selected="{{_gender}}" iron-label-target>
+                <paper-radio-button name="male">Male</paper-radio-button>
+                <paper-radio-button name="female">Female</paper-radio-button>
+            </paper-radio-group>
+            <small class="error-input" hidden$="[[_genderValidation]]">Please select a gender</small>
+        </iron-label>
 
-	 <paper-button raised on-tap="registerUser" class="primary">Submit</paper-button>
+	 <paper-button raised on-tap="registerUser" class="primary">Create Account</paper-button>
+
 	 
-	 
-	 <iron-ajax
+	<iron-ajax
     id="registerUser"
 	method="POST"
     url="{{url}}"
@@ -112,34 +122,40 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     on-response="handleResponse"
     on-error="handleErrorResponse"
     debounce-duration="300"></iron-ajax>
-	-->
+	 -->
 	
-	<oc-register-staff></oc-register-staff>
+<iron-ajax id="registerUser"></iron-ajax>
 	
   </template>
 
   <script>
-
+(function(){
     Polymer({
 
       is: 'shop-register',
 	
       properties: {
-	  
+	behaviors: [ OC.Behaviours.ApiProvider ], 
+	
 	loading: {
 		type: Boolean,
 		notify: true
 	},
 
+	clientId: {
+		type: String,
+		value: OC.clientId
+	},	
+	
 	token: {
 		type: String,
-		value: '1eec942aa78f0d610f586ac0daf77ec2'
-		//value: OC.clientId
+		value: OC.token
 	},	
+	
 	
 	ajaxParams: {
 		type: String,
-		computed: '_processHeader(token)'
+		computed: '_processHeader(clientId, token)'
 	},
 
 	ajaxBody: {
@@ -147,38 +163,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		computed: '_body(username, mobileNumberCountry, password, firstName, surname, email, nickName, cellphoneNumber, sex)'
 	},
 	
-	url: { type: String, value: 'https://staging-api.ordercloud.com/resource/users' },
-	username: { type: String, value: 'jamie' },
+	url: { type: String, value: OC.apiHost + 'users' },
+	username: String,
 	mobileNumberCountry: { type: String, value: '+27' },
-	password: { type: String, value: 'test' },
-	firstName: { type: String, value: 'jamie' },
-	surname: { type: String, value: 'page' },
-	email: { type: String, value: 'jamie@jnz.co.za' },
-	nickName: { type: String, value: 'jamie' },
-	cellphoneNumber: { type: String, value: '0829273058' },
-	sex: { type: String, value: 'Male' },
+	password: String,
+	firstName: String,
+	surname: String,
+	email: String,
+	nickName: String,
+	cellphoneNumber: String,
+	gender: String,
+	  _genderValidation: {
+                    type: Boolean,
+                    value: function(){ return true}
+                },
       },
-
-	registerUser: function() {
-		this.$.registerUser.generateRequest();
-	},
 	
-	_processHeader: function(token) {
-		var cuname = btoa('jamie@jnz.co.za:18421@ordercloud');
-		var obj = {
-			'X-Ordercloud-organisation': token,
-			'Authorization': 'Basic ' + cuname,
+	observers: [
+                "_selectGender(_gender)"
+	],
+	
+	_processHeader: function(clientId, token) {
+		return {
+			'X-Ordercloud-organisation': clientId,
+			'Authorization': 'Bearer ' + token,
 			'Content-Type': 'application/json',
 			'Accept': 'text/plain',
-			//'Authorization': 'Basic ' + computedUsername
 		};
-		console.log(token);
-		return obj;
 	},
 	
 	handleResponse(data) {
 		console.log(data.detail.response);
-		return;
+	
 		var data = data.detail.response;
 		
 		if (data === Object(data)) {
@@ -210,12 +226,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			sendWelcomeMessage: false
 		};
 		
-		console.log(obj);
 		return obj;
+	},
+		
+		
+	_selectGender : function(){
+		this._genderValidation = !!this._gender;
 	}
-	
+			
     });
-
+	 })();
   </script>
 
 </dom-module>

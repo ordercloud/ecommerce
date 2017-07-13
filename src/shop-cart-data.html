@@ -15,7 +15,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <template>
 
-
 	<iron-ajax
     auto
 	method="GET"
@@ -68,15 +67,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			computed: '_processHeader(token)'
 		},
       },
-	/*
-	ready : function(){
-	super();
-		console.log('HI');
-		this.$.cartApi.getCart(userId).then(function(request){
-			console.log(request);
-		}.bind(this));
-	},
-	  */
+	  
 	  addItem: function(detail) {
         var i = this._indexOfEntry(detail.item.name, detail.size);
         if (i !== -1) {

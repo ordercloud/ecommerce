@@ -53,20 +53,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     </style>
 
-<!--
-	<iron-ajax
-    auto
-	method="GET"
-	url="{{ _getUrl	}}"
-	headers='{{ajaxParams}}'
-    handle-as="json"
-    loading="{{loading}}"
-    on-response="handleGetResponse"
-    on-error="handleGetErrorResponse"
-    debounce-duration="300"></iron-ajax>
--->
-
-
     <div class="main-frame">
       <div class="subsection" visible$="[[!_hasItems]]">
         <p class="empty-cart">Your <iron-icon icon="shopping-cart"></iron-icon> is empty.</p>
@@ -91,20 +77,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </div>
 
-<!--
-	<iron-ajax
-    id="postCart"
-	method="POST"
-    url="{{_urlPost}}"
-	headers='{{ajaxParams}}'
-	body="{{_body}}"
-	on-response="handleResponse"
-    handle-as="json"
-    loading="{{loading}}"
-    on-response="handleResponse"
-    on-error="handleErrorResponse"
-    debounce-duration="300"></iron-ajax>
-	-->
   </template>
 
   <script>
@@ -134,14 +106,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		  computed: '_computeHasItem(cart.items.length)'
 		},
 
-		_urlPost: { type: String, computed: '_ajaxUrl(token)' },
-		_getUrl: { type: String, computed: '_ajaxGetUrl(token)' },
-		_body: { type: Object, computed: '_ajaxPutCartBody(token)' },
-
-		ajaxParams: {
-			type: String,
-			computed: '_processHeader(token)'
-		},
       },
 
 	observers: [ '_formatTotal(total)' ],
@@ -151,7 +115,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       _computeHasItem: function(cartLength) {
-		//console.log(cartLength);
 			return cartLength > 0;
       },
 
@@ -165,49 +128,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.fire('change-section', { title: 'Your cart' });
         }
       },
-
-
-	  _ajaxUrl: function(token) {
-	  	var userId = JSON.parse(localStorage.getItem('oc-userId'));
-		return (userId) ? this._url('cart/user/'+userId+'/order') : '';
-	  },
-
-	  _ajaxOrderCartBody: function(toen) {
-		var userId = JSON.parse(localStorage.getItem('oc-userId'));
-		var cartdata = JSON.parse(localStorage.getItem('shop-cart-data'));
-		var body = {
-			  "amount": cartdata[0].item.price,
-			  "tip": 0,
-			  "deliveryCost": 0,
-			  "adminFee": 0,
-			  "deliveryType": "SELFPICKUP",
-			  "note": "string",
-			  "reference": "ref" + userdata.id
-			};
-		//console.log(this._body);
-		return body;
-	  },
-
-	  _ajaxPutCartBody: function(token) {
-		var userId = JSON.parse(localStorage.getItem('oc-userId'));
-		var cartdata = JSON.parse(localStorage.getItem('shop-cart-data'));
-		var body = {};
-		//console.log(this._body);
-		return body;
-	  },
-
-	_processHeader: function(token) {
-		var cuname = btoa('jamie@jnz.co.za:18421@ordercloud');
-		var obj = {
-			'X-Ordercloud-organisation': token,
-			'Authorization': 'Bearer ' + OC.token,
-			//'Authorization': 'Basic ' + cuname,
-			'Content-Type': 'application/json',
-			//'Authorization': 'Basic ' + computedUsername
-		};
-		//console.log(token);
-		return obj;
-	},
 
 	 clearCart: function(){
 		//this.$.cartApi.clearCart(this._userId);
@@ -227,75 +147,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		};
 
 		this.fire('create-cart-order', { body });
-		//var userdata = JSON.parse(localStorage.getItem('shop-login'));
-		//var cartdata = JSON.parse(localStorage.getItem('shop-cart-data'));
-		//	console.log(userdata);
-		//console.log(cartdata);
-		/*
-		var obj = {};
-
-		for (var i = 0; i < cartdata.length; i++){
-			//console.log(cartdata[i]);
-			obj = {
-				productId: cartdata[i].item.id,
-				optionIds: [0],
-				extraIds: [0],
-				quantity:  cartdata[i].quantity
-			};
-		//	this.$.postCart.generateRequest();
-			//console.log(obj);
-		};
-		*/
-		/*
-		var obj = {
-		  "productId": 0,
-		  "optionIds": [
-			0
-		  ],
-		  "extraIds": [
-			0
-		  ],
-		  "quantity": 0
-		};
-		*/
-		//this.$.postCart.generateRequest();
-		//console.log(obj);
-	},
-
-	handleResponse(data) {
-		console.log(data.detail.response);
-		return;
-	},
-
-	handleErrorResponse(event) {
-		this.loading = false;
-		this.responseError = event.detail.request.xhr.response;
-		//console.log(this.responseError);
-	},
-
-	    _ajaxGetUrl: function(token) {
-	  	var userId = JSON.parse(localStorage.getItem('oc-userId'));
-		return (userId)? this._url('cart/user/'+userId): '';
-	  },
-
-	handleGetResponse(data) {
-	//	cartItems = data.detail.response;
-	//	var items = cartItems.items;
-
-		//	console.log('cart fetched');
-		// console.log(cartItems);
-	//	this.total = cartItems.cartTotal;
-	//	this.cart = { items };
-		//console.log('total');
-		//console.log(cartItems.cartTotal);
-	},
-
-	handleGetErrorResponse(event) {
-		  this.loading = false;
-			this.responseError = event.detail.request.xhr.response;
-			console.log(this.responseError);
-	},
-
+	}
 
     });
 

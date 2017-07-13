@@ -26,6 +26,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="app-behaviour.html">
 <!-- Since 'home' is the default route, eagerly load it. -->
 <link rel="import" href="../bower_components/oc-cart-api/oc-cart-api.html">
+<link rel="import" href="../bower_components/oc-cart-api/oc-user-api.html">
 <link rel="import" href="../bower_components/oc-organisation-api/oc-organisation-api.html">
 
 <link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
@@ -267,6 +268,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <shop-analytics key="UA-39334307-16"></shop-analytics>
 	<oc-organisation-api id="orgApi"></oc-organisation-api>
 	<oc-cart-api id="cartApi"></oc-cart-api>
+	<oc-user-api id="userApi"></oc-user-api>
     <!--
       app-location and app-route elements provide the state of the URL for the app.
     -->
@@ -328,6 +330,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <div class="cart-badge" aria-hidden="true" hidden$="[[!numItems]]">[[numItems]]</div>
         </div>
 		  <sign-in user="{{ user }}" signed-in="{{ signedIn }}"  failure="{{failure}}"></sign-in>
+		  <a class="" href="/register" tabindex="-1"><iron-label>Register User</iron-label></a>
       </app-toolbar>
 	      <!-- if user not logged in -->
       <app-toolbar hidden$={{signedIn}} >
@@ -495,11 +498,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         'announce': '_onAnnounce',
         'dom-change': '_domChange',
 	  'oc-sign-in': '_setUserId',
-	  'oc-sign-out': '_signOut'
+	  'oc-sign-out': '_signOut',
+	  'staff-register': '_registerStaff'
         // 'show-invalid-url-warning': '_onFallbackSelectionTriggered'
       },
-	
-	
 	
       created: function() {
         window.performance && performance.mark && performance.mark('shop-app.created');
@@ -531,10 +533,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       _getOrgFromHeader : function(){	
-        this.$.orgApi.getOrganisationByHeader()
-                .then(function(request){
-                  this.organisation = request.response;
-                }.bind(this))
+		this.$.orgApi.getOrganisationByHeader()
+			.then(function(request){
+			this.organisation = request.response;
+		}.bind(this))
       },
 	  
 	// _getCartData : function(){	
@@ -807,7 +809,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			this._getErrorModal('cartcleared', error);
 		}.bind(this));
       },
-
+	
+	_registerStaff: function(event){
+		this.$.userApi.createAccount(event.detail).then(function(request){
+			console.log(request);
+			if (!this._registerModal) {
+				this._registerModal = document.createElement('modal-register');
+				Polymer.dom(this.root).appendChild(this._registerModal);
+			}
+			this._registerModal.open();
+		}.bind(this)).catch(function(error){
+				if (!this._registerErrorModal) {
+					this._registerErrorModal = document.createElement('modal-error-register');
+					Polymer.dom(this.root).appendChild(this._registerErrorModal);
+				}
+				this._registerErrorModal.open();
+		}.bind(this));
+	},
 	  
 	_setUserId: function(data){
 		if(data){
@@ -858,6 +876,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		}
 		this._cartClearedModal.open();
 	},
+	
+	
+	
     });
 
   </script>
