@@ -1,0 +1,71 @@
+<link rel="import" href="oc-core.html">
+<link rel="import" href="bluebird-import.html">
+
+<script>
+  window.OC = window.OC || {};
+  window.OC.Behaviours = window.OC.Behaviours || {};
+  OC.Behaviours.ApiProvider = {
+
+    _url: function(uri) {
+      return OC.apiHost + 'resource/' + uri;
+    },
+
+    _normalizeError: function(request) {
+      if (request.xhr.response && 'error' in request.xhr.response && request.xhr.response.error === 'expired_token') {
+        throw new ExpiredTokenError();
+      }
+      if (request.xhr.response && 'message' in request.xhr.response) {
+        throw new Error(request.xhr.response.message);
+      }
+
+      throw new Error(window.OC.Errors[request.xhr.status]);
+    },
+
+    _generateRequest: function(request) {
+      request.headers.Authorization = request.headers.Authorization || 'Bearer ' + OC.token;
+      request.headers['X-Ordercloud-Organisation'] = request.headers['X-Ordercloud-Organisation'] || OC.clientId;
+      var ironRequest = request.generateRequest();
+      request.headers = {};
+      return ironRequest.completes.catch(this._normalizeError.bind(this, ironRequest));
+    }
+
+  };
+
+  window.OC.Errors = {
+    400: 'Bad Request',
+    401: 'Unauthorized',
+    402: 'Payment Required',
+    403: 'Forbidden',
+    404: 'Not Found',
+    405: 'Method Not Allowed',
+    406: 'Not Acceptable',
+    408: 'Request Timeout',
+    409: 'Conflict',
+    410: 'Gone',
+    411: 'Length Required',
+    412: 'Precondition Failed',
+    413: 'Payload Too Large',
+    414: 'URI Too Long',
+    415: 'Unsupported Media Type',
+    416: 'Range Not Satisfiable',
+    417: 'Expectation Failed',
+    422: 'Unprocessable Entity',
+    423: 'Locked',
+    424: 'Failed Dependency',
+    426: 'Upgrade Required',
+    428: 'Precondition Required',
+    429: 'Too Many Requests',
+    431: 'Request Header Fields Too Large',
+    451: 'Unavailable For Legal Reasons',
+    500: 'Internal Server Error',
+    501: 'Not Implemented',
+    502: 'Bad Gateway',
+    503: 'Service Unavailable',
+    504: 'Gateway Time-out',
+    505: 'HTTP Version Not Supported',
+    506: 'Variant Also Negotiates',
+  };
+
+  function ExpiredTokenError() {}
+  ExpiredTokenError.prototype = Object.create(Error.prototype);
+</script>

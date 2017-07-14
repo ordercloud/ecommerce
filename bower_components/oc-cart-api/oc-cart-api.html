@@ -1,0 +1,93 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../oc-core-utils/oc-api-provider-behaviour.html">
+<!--
+`oc-cart-api`
+Element to manage cart items on the Ordercloud platform
+
+@demo demo/index.html
+-->
+
+<dom-module id="oc-cart-api">
+  <template>
+
+ <iron-ajax id="getCart"></iron-ajax>
+ <iron-ajax id="clearCart"></iron-ajax>
+ <iron-ajax id="addToCart"></iron-ajax>
+ <iron-ajax id="removeFromCart"></iron-ajax>
+ <iron-ajax id="createOrder"></iron-ajax>
+ 
+  </template>
+
+  <script>(function(){
+    Polymer({
+
+      is: 'oc-cart-api',
+	behaviors: [OC.Behaviours.ApiProvider],
+
+	/**
+	   * Retrieve a users cart
+	   * @param {Number} userId The ID of the logged in user
+	   * @return {Promise}
+		*/  
+      getCart: function(userId) {
+        this.$.getCart.url = this._url('cart/user/'+ userId);
+        return this._generateRequest(this.$.getCart);
+      },
+
+	/** 
+	   * Clear a users cart
+	   * @param {Number} userId The ID of the logged in user
+	   * @return {Promise}
+	   */  
+	 clearCart: function(userId) {
+        this.$.clearCart.url = this._url('cart/user/' + userId);
+        this.$.clearCart.method = "DELETE";
+        this.$.clearCart.contentType = "application/json";
+        return this._generateRequest(this.$.clearCart);
+      },
+	
+	/**
+       * Add items to users cart
+       * @param {Number} userId The ID of the logged in user
+	   * @param {Object} details
+       * @return {Promise}
+       */
+      addToCart: function(userId, details) {
+        this.$.addToCart.url = this._url('cart/user/'+userId );
+        this.$.addToCart.method = "PUT";
+        this.$.addToCart.contentType = "application/json";
+        this.$.addToCart.body = details;
+        return this._generateRequest(this.$.addToCart);
+      },
+	
+	/**
+       * Removes an item from a users cart
+       * @param {Number} userId The ID of the logged in user
+       * @param {String} itemHash
+       * @return {Promise}
+       */
+      removeFromCart: function(userId, itemHash) {
+        this.$.removeFromCart.url = this._url('cart/user/' + userId + '/item/' + itemHash);
+        this.$.removeFromCart.method = "DELETE";
+        return this._generateRequest(this.$.removeFromCart);
+      },
+	  
+	/**
+   * Creates an order from the users cart
+   * @param {Number} userId The ID of the logged in user
+   * @param {Object} details
+   * @return {Promise}
+   */
+      createOrder: function(userId, details) {
+        this.$.createOrder.url = this._url('cart/user/' + userId + '/order');
+        this.$.createOrder.method = "POST";
+        this.$.createOrder.contentType = "application/json";
+        this.$.createOrder.body = details;
+        return this._generateRequest(this.$.createOrder);
+      }
+	
+    });
+	 })();
+  </script>
+</dom-module>

@@ -1,0 +1,38 @@
+<script src="../bignumber.js/bignumber.min.js"></script>
+<script src="../moment/min/moment.min.js"></script>
+
+<script>
+  window.OC = window.OC || {};
+  window.OC.Behaviours = window.OC.Behaviours || {};
+  OC.Behaviours.Formatter = {
+
+    formatNumber: function(number) {
+      if (isNaN(number)) {
+        return new BigNumber(0);
+      }
+
+      return new BigNumber(number || 0);
+    },
+
+    formatMoney: function(amount) {
+      return this.formatNumber(amount).toFixed(2);
+    },
+
+    formatDate: function(date, parseFormat, format) {
+      var parsedDate = this.formatMoment(date, parseFormat);
+      return parsedDate.format(format || 'DD MMM @ HH:ss');
+    },
+
+    formatMoment: function(date, format) {
+      if (date instanceof Date) {
+        return moment(date);
+      }
+      return moment(date, format || 'YYYY-MM-DD HH:mm:ss.SSS');
+    },
+
+    newMoment: function() {
+      return moment();
+    }
+
+  };
+</script>
